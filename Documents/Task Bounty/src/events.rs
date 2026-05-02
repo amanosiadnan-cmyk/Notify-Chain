@@ -1,0 +1,73 @@
+use soroban_sdk::{Address, Env, String, Symbol, symbol_short};
+use crate::types::Task;
+
+/// Emit TaskCreated event
+pub fn emit_task_created(env: &Env, task: &Task) {
+    env.events().publish(
+        (symbol_short!("task"), symbol_short!("created")),
+        (task.id, task.poster.clone(), task.title.clone(), task.reward, task.deadline),
+    );
+}
+
+/// Emit WorkSubmitted event
+pub fn emit_work_submitted(
+    env: &Env,
+    task_id: u64,
+    submission_id: u64,
+    contributor: &Address,
+    work_url: &String,
+) {
+    env.events().publish(
+        (symbol_short!("work"), symbol_short!("submit")),
+        (task_id, submission_id, contributor.clone(), work_url.clone()),
+    );
+}
+
+/// Emit SubmissionApproved event
+pub fn emit_submission_approved(
+    env: &Env,
+    task_id: u64,
+    submission_id: u64,
+    contributor: &Address,
+    reward: i128,
+) {
+    env.events().publish(
+        (symbol_short!("sub"), symbol_short!("approved")),
+        (task_id, submission_id, contributor.clone(), reward),
+    );
+}
+
+/// Emit SubmissionRejected event
+pub fn emit_submission_rejected(
+    env: &Env,
+    task_id: u64,
+    submission_id: u64,
+    contributor: &Address,
+) {
+    env.events().publish(
+        (symbol_short!("sub"), symbol_short!("rejected")),
+        (task_id, submission_id, contributor.clone()),
+    );
+}
+
+/// Emit TaskCancelled event
+pub fn emit_task_cancelled(env: &Env, task_id: u64, poster: &Address) {
+    env.events().publish(
+        (symbol_short!("task"), symbol_short!("cancel")),
+        (task_id, poster.clone()),
+    );
+}
+
+/// Emit DisputeRaised event
+pub fn emit_dispute_raised(
+    env: &Env,
+    task_id: u64,
+    submission_id: u64,
+    raiser: &Address,
+    reason: &String,
+) {
+    env.events().publish(
+        (symbol_short!("dispute"), symbol_short!("raised")),
+        (task_id, submission_id, raiser.clone(), reason.clone()),
+    );
+}
