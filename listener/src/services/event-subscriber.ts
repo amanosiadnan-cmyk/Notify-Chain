@@ -1,5 +1,6 @@
 import * as StellarSDK from '@stellar/stellar-sdk';
 import { Config, ContractConfig } from '../types';
+import { eventRegistry } from '../store/event-registry';
 import logger from '../utils/logger';
 import {
   getEventName,
@@ -146,13 +147,26 @@ export class EventSubscriber {
     event: StellarSDK.rpc.Api.EventResponse,
     contractConfig: ContractConfig
   ): Promise<void> {
-    logger.info('Processing event', {
+    const eventName = getEventName(event.topic);
+    const displayEvent = eventRegistry.addFromInput({
+      eventId: event.id,
       contractAddress: contractConfig.address,
-      eventName: getEventName(event.topic),
+      eventName,
       ledger: event.ledger,
       type: event.type,
       topic: event.topic,
       value: event.value,
+      txHash: event.txHash,
+    });
+
+    logger.info('Processing event', {
+      contractAddress: displayEvent.contractAddress,
+      eventId: displayEvent.eventId,
+      eventName: displayEvent.eventName,
+      ledger: displayEvent.ledger,
+      type: displayEvent.type,
+      topic: displayEvent.topic,
+      value: displayEvent.value,
     });
 
     if (this.discordService) {

@@ -15,5 +15,7 @@ export interface Config {
   pollIntervalMs: number;
   maxReconnectAttempts: number;
   reconnectDelayMs: number;
+  eventsApiPort: number;
+  eventsApiCorsOrigin: string;
   discord?: DiscordConfig;
 }
