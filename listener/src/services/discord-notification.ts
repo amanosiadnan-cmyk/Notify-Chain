@@ -78,6 +78,7 @@ export class DiscordNotificationService {
       logger.info('Discord notification sent successfully', {
         eventId: event.id,
         contractAddress: contractConfig.address,
+      });
       logger.info('Discord notification delivered', {
         ...logContext,
         durationMs,
