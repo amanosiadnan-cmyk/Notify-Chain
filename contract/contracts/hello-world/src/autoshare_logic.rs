@@ -1,6 +1,8 @@
 use crate::base::errors::Error;
 use crate::base::events::{
     AdminTransferred, AuthorizationFailure, AutoshareCreated, AutoshareUpdated, ContractPaused,
+    ContractUnpaused, GroupActivated, GroupDeactivated, NotificationCategory,
+    ScheduledNotificationCancelled, Withdrawal,
     ContractUnpaused, GroupActivated, GroupDeactivated, NotificationCategory, NotificationPriority,
     Withdrawal,
 };
@@ -112,6 +114,7 @@ pub fn create_autoshare(
         creator: creator.clone(),
         priority: details.priority,
         category: NotificationCategory::Group,
+        priority: NotificationPriority::Medium,
         id: id.clone(),
     }
     .publish(&env);
@@ -263,6 +266,7 @@ fn publish_authorization_failure(env: &Env, caller: &Address, action: &str) {
         caller: caller.clone(),
         priority: NotificationPriority::High,
         category: NotificationCategory::Admin,
+        priority: NotificationPriority::Critical,
         action: String::from_str(env, action),
     }
     .publish(env);
@@ -300,6 +304,7 @@ pub fn transfer_admin(env: Env, current_admin: Address, new_admin: Address) -> R
         old_admin: current_admin,
         priority: NotificationPriority::High,
         category: NotificationCategory::Admin,
+        priority: NotificationPriority::Critical,
         new_admin,
     }
     .publish(&env);
@@ -325,6 +330,7 @@ pub fn pause(env: Env, admin: Address) -> Result<(), Error> {
     ContractPaused {
         priority: NotificationPriority::High,
         category: NotificationCategory::Admin,
+        priority: NotificationPriority::High,
     }
     .publish(&env);
     Ok(())
@@ -345,6 +351,7 @@ pub fn unpause(env: Env, admin: Address) -> Result<(), Error> {
     ContractUnpaused {
         priority: NotificationPriority::High,
         category: NotificationCategory::Admin,
+        priority: NotificationPriority::High,
     }
     .publish(&env);
     Ok(())
@@ -683,6 +690,7 @@ pub fn update_members(
         updater: caller,
         priority: details.priority,
         category: NotificationCategory::Group,
+        priority: NotificationPriority::Medium,
         id: id.clone(),
     }
     .publish(&env);
@@ -720,6 +728,7 @@ pub fn deactivate_group(env: Env, id: BytesN<32>, caller: Address) -> Result<(),
         creator: caller,
         priority: details.priority,
         category: NotificationCategory::Group,
+        priority: NotificationPriority::Low,
         id: id.clone(),
     }
     .publish(&env);
@@ -757,6 +766,7 @@ pub fn activate_group(env: Env, id: BytesN<32>, caller: Address) -> Result<(), E
         creator: caller,
         priority: details.priority,
         category: NotificationCategory::Group,
+        priority: NotificationPriority::Low,
         id: id.clone(),
     }
     .publish(&env);
@@ -806,9 +816,43 @@ pub fn withdraw(
         recipient,
         priority: NotificationPriority::Critical,
         category: NotificationCategory::Financial,
+        priority: NotificationPriority::High,
         amount,
     }
     .publish(&env);
+    Ok(())
+}
+
+// ============================================================================
+// Scheduled Notification Cancellation
+// ============================================================================
+
+/// Cancels a scheduled notification identified by `notification_id` and emits
+/// a [`ScheduledNotificationCancelled`] event so off-chain consumers can track
+/// the lifecycle of every scheduled notification in real time.
+///
+/// The contract does not keep a registry of scheduled notifications; callers are
+/// responsible for submitting the correct identifier. Any authenticated address
+/// may cancel a notification — access control beyond authentication is left to
+/// the application layer.
+pub fn cancel_notification(
+    env: Env,
+    notification_id: BytesN<32>,
+    caller: Address,
+) -> Result<(), Error> {
+    caller.require_auth();
+
+    if get_paused_status(&env) {
+        return Err(Error::ContractPaused);
+    }
+
+    ScheduledNotificationCancelled {
+        caller,
+        category: NotificationCategory::Notification,
+        notification_id,
+    }
+    .publish(&env);
+
     Ok(())
 }
 
