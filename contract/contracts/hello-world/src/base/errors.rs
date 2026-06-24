@@ -58,4 +58,10 @@ pub enum Error {
     NotificationNotExpired = 25,
     /// Triggered when a batch operation exceeds the maximum allowed size.
     BatchTooLarge = 26,
+    /// Triggered when attempting to interact with a revoked notification.
+    NotificationRevoked = 27,
+    /// Triggered when the caller is not authorized to revoke a notification.
+    NotAuthorizedToRevoke = 28,
+    /// Triggered when attempting to revoke a notification that is already revoked.
+    AlreadyRevoked = 29,
 }
