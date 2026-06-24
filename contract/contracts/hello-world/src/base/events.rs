@@ -237,3 +237,16 @@ pub struct NotificationRevoked {
     pub priority: NotificationPriority,
     pub revoked_at: u64,
 }
+
+/// Emitted when an off-chain batch of notifications finishes processing.
+#[contractevent(data_format = "single-value")]
+#[derive(Clone)]
+pub struct BatchProcessingCompleted {
+    #[topic]
+    pub batch_id: BytesN<32>,
+    #[topic]
+    pub category: NotificationCategory,
+    #[topic]
+    pub priority: NotificationPriority,
+    pub processed_count: u32,
+}

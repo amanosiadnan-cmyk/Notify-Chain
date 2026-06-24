@@ -290,6 +290,11 @@ impl AutoShareContract {
         autoshare_logic::expire_notification(env, notification_id).unwrap();
     }
 
+    /// Emits a `BatchProcessingCompleted` event for off-chain listeners.
+    pub fn emit_batch_completed(env: Env, batch_id: BytesN<32>, processed_count: u32) {
+        autoshare_logic::emit_batch_completed(env, batch_id, processed_count).unwrap();
+    }
+
     /// Revokes a scheduled notification, preventing any further interaction with it.
     ///
     /// Only the notification creator or the contract admin can revoke a notification.
