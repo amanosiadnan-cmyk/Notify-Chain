@@ -51,7 +51,7 @@ describe('IdempotencyKeyService', () => {
 
       mockRepository.getCachedResponse.mockResolvedValue(cachedResponse);
 
-      const processor = vi.fn();
+      const processor = jest.fn();
 
       const result = await service.processWithIdempotency(
         idempotencyKey,
@@ -72,7 +72,7 @@ describe('IdempotencyKeyService', () => {
       mockRepository.getCachedResponse.mockResolvedValue(null);
       mockRepository.validateRequestHash.mockResolvedValue(false);
 
-      const processor = vi.fn();
+      const processor = jest.fn();
 
       await expect(
         service.processWithIdempotency(
